@@ -16,6 +16,7 @@ LANG_TO_LABELS = {
     "german":    {"expected": "Erwartet",  "provided": "Eingegeben"},
     "portuguese":{"expected": "Esperado",  "provided": "Digitado"},
     "italian":   {"expected": "Atteso",    "provided": "Inserito"},
+    "chinese":   {"expected": "期望答案",   "provided": "你的答案"},
 }
 
 def get_compare_labels(config: dict) -> dict:
@@ -763,9 +764,27 @@ LANGUAGES = {
         "no_tips_available": "Keine Tipps verfügbar",
         "suggestions": {
             "Again": "Nochmal",
-            "Hard": "Schwer", 
+            "Hard": "Schwer",
             "Good": "Gut",
             "Easy": "Einfach"
+        }
+    },
+    "chinese": {
+        "name": "中文",
+        "ai_analysis": "AI 分析",
+        "improvement_tips": "改进建议",
+        "review_suggestion": "复习建议",
+        "question_context": "题目背景",
+        "analyzing": "AI 分析中...",
+        "please_wait": "请稍候，AI 正在评估您的答案",
+        "processing_response": "正在处理您的回答...",
+        "ai_not_available": "AI 分析暂不可用",
+        "no_tips_available": "暂无建议",
+        "suggestions": {
+            "Again": "重来",
+            "Hard": "困难",
+            "Good": "良好",
+            "Easy": "简单"
         }
     }
 }
@@ -1070,8 +1089,31 @@ def get_language_specific_prompt(language, question_text, true_answer, user_answ
         - Punktzahl 4-5: Teilweise richtige Antwort, aber mit erheblichen Fehlern → "Hard"
         - Punktzahl 6-8: Richtige Antwort mit kleineren Unvollkommenheiten → "Good"
         - Punktzahl 9-10: Ausgezeichnete und vollständige Antwort → "Easy"
-        
+
         Berücksichtigen Sie den Fragenkontext bei der Bewertung der Relevanz und Vollständigkeit der studentischen Antwort.
+        """,
+
+        "chinese": f"""
+        请在题目背景下分析学生的回答，并给出结构化的评价。
+
+        题目："{question_text}"
+        期望答案："{true_answer}"
+        学生的回答："{user_answer}"
+
+        请按以下 JSON 格式提供评价：
+        {{
+            "score": [0 到 10 的整数],
+            "tips": "[用中文给出建设性反馈，不超过 100 字，结合题目背景]",
+            "review_suggestion": "[从以下选项中选择：Again, Hard, Good, Easy]"
+        }}
+
+        评分标准：
+        - 0-3 分：回答错误或非常不完整 → "Again"
+        - 4-5 分：部分正确但存在明显错误 → "Hard"
+        - 6-8 分：回答正确，有少量不足 → "Good"
+        - 9-10 分：回答优秀且完整 → "Easy"
+
+        请结合题目背景评估学生回答的相关性和完整性。
         """
     }
     
@@ -1104,7 +1146,8 @@ def analyze_answer_with_ai(question_text: str, true_answer: str, user_answer: st
         "english": "You are an educational assistant that evaluates student responses constructively and kindly. Use the question context to provide more accurate and relevant feedback.",
         "french": "Vous êtes un assistant pédagogique qui évalue les réponses des étudiants de manière constructive et bienveillante. Utilisez le contexte de la question pour fournir des commentaires plus précis et pertinents.",
         "spanish": "Eres un asistente educativo que evalúa las respuestas de los estudiantes de manera constructiva y amable. Usa el contexto de la pregunta para proporcionar comentarios más precisos y relevantes.",
-        "german": "Sie sind ein pädagogischer Assistent, der die Antworten der Studenten konstruktiv und freundlich bewertet. Nutzen Sie den Fragenkontext, um genauere und relevantere Rückmeldungen zu geben."
+        "german": "Sie sind ein pädagogischer Assistent, der die Antworten der Studenten konstruktiv und freundlich bewertet. Nutzen Sie den Fragenkontext, um genauere und relevantere Rückmeldungen zu geben.",
+        "chinese": "你是一位教育助手，以建设性和友善的方式评估学生的回答。请根据题目背景提供更准确、更相关的反馈。"
     }
     
     system_message = system_messages.get(language, system_messages["english"])
