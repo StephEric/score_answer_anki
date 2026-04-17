@@ -433,7 +433,10 @@ def get_current_question():
             
             # Nettoyer le HTML pour extraire le texte
             question_text = clean_html_content(question_html)
-            
+
+            # Supprimer le placeholder type-answer (ex: [[type:Back]])
+            question_text = re.sub(r'\[\[type:[^\]]*\]\]', '', question_text).strip()
+
             print(f"Current question extracted: {question_text[:100]}...")
             return question_text
         else:
